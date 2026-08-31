@@ -2,6 +2,7 @@ package smart.tobi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * SmartTobi SuperApp - Modular Monolith Entry
@@ -9,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Packages: smart.tobi.* (hexagonal per module)
  */
 @SpringBootApplication
+@EnableScheduling
 public class SmartTobiApplication {
   public static void main(String[] args) {
     SpringApplication.run(SmartTobiApplication.class, args);
