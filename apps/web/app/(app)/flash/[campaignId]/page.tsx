@@ -1,22 +1,19 @@
-// SmartTobi Flash Page - PPR + Streaming + Server Actions
-// Domain: flash.smart.tobi
+// SmartTobi Flash Campaign - PPR + RSC streaming + Client Join
 import { Suspense } from 'react';
+import { FlashJoin } from '@/components/flash/FlashJoin';
 
-export const revalidate = 5; // ISR 5s for campaign
+export const revalidate = 5;
 
-async function FlashCampaign({ campaignId }: { campaignId: string }) {
-  // fetch with Data Cache + tags - Next.js 4-tier cache
-  const res = await fetch(`${process.env.API_URL}/api/flash/${campaignId}/stock`, {
-    next: { tags: [`flash:${campaignId}`] }
-  });
-  // const stock = await res.json();
-  return <div>Flash Campaign {campaignId} - Stock streaming...</div>;
-}
-
-export default function Page({ params }: { params: { campaignId: string } }) {
+export default async function FlashPage({ params }: { params: Promise<{ campaignId: string }> }) {
+  const { campaignId } = await params;
   return (
-    <Suspense fallback={<div>Loading campaign...</div>}>
-      <FlashCampaign campaignId={params.campaignId} />
-    </Suspense>
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Flash Sale #{campaignId} - flash.smart.tobi</h1>
+      <Suspense fallback={<div>Loading campaign...</div>}>
+        <div className="p-4 border bg-yellow-50">Campaign info (ISR 5s) - stock via Redis Lua</div>
+      </Suspense>
+      <FlashJoin campaignId={campaignId} />
+      <p className="text-sm text-gray-500">Flow: Join to HOLD_CREATED (10m) or QUEUED (ZSet) to checkout</p>
+    </div>
   );
 }
