@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import smart.tobi.flash.domain.port.in.JoinFlashSaleUseCase;
 import smart.tobi.flash.domain.port.out.CampaignRepositoryPort;
+import smart.tobi.flash.domain.port.out.QueuePort;
 import smart.tobi.flash.domain.port.out.StockPort;
 
 import java.time.Instant;
@@ -18,10 +19,12 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
 
   private final CampaignRepositoryPort campaignPort;
   private final StockPort stockPort;
+  private final QueuePort queuePort;
 
-  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort) {
+  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort) {
     this.campaignPort = campaignPort;
     this.stockPort = stockPort;
+    this.queuePort = queuePort;
   }
 
   @Override
@@ -37,12 +40,11 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
       return new Result("LIMIT_EXCEEDED", null, null, null);
     }
 
-    // US-204: DSA Lua atomic decr - chống oversell tuyệt đối, không cần distributed lock nặng
-    // Flow: Redis Lua (fast path) -> DB optimistic lock (consistency) -> hold
+    // US-202 + US-204: Lua atomic decr; if SOLD_OUT -> enqueue FIFO queue (ZSet score=timestamp)
     long remaining = stockPort.tryDecrement(cmd.campaignId(), cmd.quantity());
     if (remaining < 0) {
-      // Phase 2 sẽ enqueue vào Redis SortedSet (score=timestamp) FIFO -> return QUEUED
-      return new Result("SOLD_OUT", null, null, null);
+      var ticket = queuePort.enqueue(cmd.campaignId(), cmd.userId(), cmd.quantity());
+      return new Result("QUEUED", null, ticket.id(), (int) ticket.position());
     }
 
     // Compensate DB stock_remaining (optimistic lock via @Version, retry ở caller nếu ObjectOptimisticLockingFailure)

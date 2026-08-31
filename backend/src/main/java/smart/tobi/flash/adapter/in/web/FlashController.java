@@ -3,6 +3,7 @@ package smart.tobi.flash.adapter.in.web;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import smart.tobi.flash.domain.port.in.GetQueuePositionUseCase;
 import smart.tobi.flash.domain.port.in.JoinFlashSaleUseCase;
 
 /**
@@ -13,9 +14,11 @@ import smart.tobi.flash.domain.port.in.JoinFlashSaleUseCase;
 public class FlashController {
 
   private final JoinFlashSaleUseCase joinUseCase;
+  private final GetQueuePositionUseCase queueUseCase;
 
-  public FlashController(JoinFlashSaleUseCase joinUseCase) {
+  public FlashController(JoinFlashSaleUseCase joinUseCase, GetQueuePositionUseCase queueUseCase) {
     this.joinUseCase = joinUseCase;
+    this.queueUseCase = queueUseCase;
   }
 
   @PostMapping("/{campaignId}/join")
@@ -37,7 +40,15 @@ public class FlashController {
 
   @GetMapping("/{campaignId}/stock")
   public ResponseEntity<Long> stock(@PathVariable Long campaignId) {
-    // delegated to StockPort via query use case - simplified
     return ResponseEntity.ok(0L);
+  }
+
+  // US-202: Poll queue position
+  @GetMapping("/queue/{ticketId}")
+  public ResponseEntity<?> queuePosition(@PathVariable String ticketId) {
+    var ticket = queueUseCase.get(ticketId);
+    if (ticket.isEmpty()) return ResponseEntity.notFound().build();
+    long pos = queueUseCase.position(ticketId);
+    return ResponseEntity.ok(java.util.Map.of("ticketId", ticketId, "position", pos, "status", ticket.get().status().name()));
   }
 }
