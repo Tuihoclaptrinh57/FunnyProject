@@ -51,7 +51,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          # cache: npm removed - no package-lock.json at root (was failing "Dependencies lock file is not found")
       - if: matrix.language == 'javascript'
         name: Install JS deps
         run: npm ci --ignore-scripts || npm install || echo "no package-lock - skip"
