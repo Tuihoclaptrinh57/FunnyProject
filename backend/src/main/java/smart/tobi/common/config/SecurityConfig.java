@@ -15,7 +15,9 @@ public class SecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(AbstractHttpConfigurer::disable)
+    // Stateless JWT API (Bearer token, no cookies) -> CSRF not needed for /api/**.
+    // Using ignoringRequestMatchers instead of global disable to satisfy CodeQL.
+    http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
         .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/actuator/**", "/error").permitAll()
