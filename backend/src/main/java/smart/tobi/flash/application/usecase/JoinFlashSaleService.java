@@ -2,8 +2,10 @@ package smart.tobi.flash.application.usecase;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smart.tobi.flash.domain.model.StockHold;
 import smart.tobi.flash.domain.port.in.JoinFlashSaleUseCase;
 import smart.tobi.flash.domain.port.out.CampaignRepositoryPort;
+import smart.tobi.flash.domain.port.out.HoldPort;
 import smart.tobi.flash.domain.port.out.QueuePort;
 import smart.tobi.flash.domain.port.out.StockPort;
 
@@ -20,11 +22,13 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
   private final CampaignRepositoryPort campaignPort;
   private final StockPort stockPort;
   private final QueuePort queuePort;
+  private final HoldPort holdPort;
 
-  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort) {
+  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort, HoldPort holdPort) {
     this.campaignPort = campaignPort;
     this.stockPort = stockPort;
     this.queuePort = queuePort;
+    this.holdPort = holdPort;
   }
 
   @Override
@@ -56,8 +60,11 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
       throw e;
     }
 
+    // US-203: create hold 10 phút TTL 600s
     String holdId = UUID.randomUUID().toString();
-    // TODO US-203: persist hold to Redis TTL 600s + DB flash_stock_hold
+    var hold = new StockHold(holdId, cmd.campaignId(), cmd.userId(), cmd.quantity(),
+        Instant.now().plusSeconds(600), StockHold.HoldStatus.ACTIVE, Instant.now());
+    holdPort.create(hold);
     return new Result("HOLD_CREATED", holdId, null, null);
   }
 }
