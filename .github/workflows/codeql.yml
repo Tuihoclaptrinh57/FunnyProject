@@ -30,19 +30,19 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          # queries: security-extended
+          build-mode: none
       - if: matrix.language == 'java'
-        name: Set up Java 25
+        name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: '17'
           cache: maven
       - if: matrix.language == 'java'
         name: Build Java (for CodeQL)
         run: |
           if [ -f "backend/pom.xml" ]; then
-            mvn -B compile -DskipTests -f backend/pom.xml
+            mvn -B compile -DskipTests -f backend/pom.xml || echo "compile failed - CodeQL build-mode none so continue"
           else
             echo "no backend/pom.xml yet - skip build"
           fi
@@ -51,10 +51,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          # cache: npm removed - no package-lock.json at root (was failing "Dependencies lock file is not found")
       - if: matrix.language == 'javascript'
         name: Install JS deps
-        run: npm ci --ignore-scripts || npm install || echo "no package-lock"
+        run: npm ci --ignore-scripts || npm install || echo "no package-lock - skip"
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
