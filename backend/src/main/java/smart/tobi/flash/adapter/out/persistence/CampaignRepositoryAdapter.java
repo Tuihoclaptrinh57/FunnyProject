@@ -37,6 +37,14 @@ public class CampaignRepositoryAdapter implements CampaignRepositoryPort, Campai
     return jpa.existsOverlapping(productId, startAt, endAt);
   }
 
+  @Override
+  public void decrementStock(Long campaignId, int quantity) {
+    int updated = jpa.decrementStock(campaignId, quantity);
+    if (updated == 0) {
+      throw new IllegalStateException("Stock decrement failed - oversell or version conflict for campaign " + campaignId);
+    }
+  }
+
   private Campaign toDomain(CampaignJpaEntity e) {
     return new Campaign(
         e.getId(),

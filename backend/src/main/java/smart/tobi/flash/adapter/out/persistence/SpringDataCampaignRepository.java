@@ -20,4 +20,13 @@ public interface SpringDataCampaignRepository extends JpaRepository<CampaignJpaE
   boolean existsOverlapping(@Param("productId") Long productId,
                             @Param("startAt") Instant startAt,
                             @Param("endAt") Instant endAt);
+
+  // US-204: Optimistic lock via version + check stock_remaining >= quantity
+  @org.springframework.data.jpa.repository.Modifying
+  @Query("""
+      UPDATE CampaignJpaEntity c
+      SET c.stockRemaining = c.stockRemaining - :qty, c.version = c.version + 1
+      WHERE c.id = :id AND c.stockRemaining >= :qty
+      """)
+  int decrementStock(@Param("id") Long id, @Param("qty") int qty);
 }
