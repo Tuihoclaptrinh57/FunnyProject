@@ -1,27 +1,61 @@
 name: CodeQL
 
 on:
-  push: { branches: [main, develop] }
-  pull_request: { branches: [main, develop] }
+  push:
+    branches: [main, develop, 'feature/**', 'fix/**']
+  pull_request:
+    branches: [main, develop]
   schedule: [{ cron: '0 6 * * 1' }]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
-    permissions: { security-events: write, actions: read, contents: read }
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
     strategy:
-      matrix: { language: [java, javascript] }
+      fail-fast: false
+      matrix:
+        language: [java, javascript]
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init@v3
-        with: { languages: ${{ matrix.language }} }
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # queries: security-extended
       - if: matrix.language == 'java'
+        name: Set up Java 25
         uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '25' }
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
       - if: matrix.language == 'java'
+        name: Build Java (for CodeQL)
         run: |
-          if [ -f "backend/pom.xml" ]; then mvn -B compile -DskipTests -pl backend -am || mvn -B compile -DskipTests; else echo "no java build yet"; fi
+          if [ -f "backend/pom.xml" ]; then
+            mvn -B compile -DskipTests -f backend/pom.xml
+          else
+            echo "no backend/pom.xml yet - skip build"
+          fi
       - if: matrix.language == 'javascript'
+        name: Set up Node
         uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - uses: github/codeql-action/analyze@v3
+        with:
+          node-version: 20
+          cache: npm
+      - if: matrix.language == 'javascript'
+        name: Install JS deps
+        run: npm ci --ignore-scripts || npm install || echo "no package-lock"
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
