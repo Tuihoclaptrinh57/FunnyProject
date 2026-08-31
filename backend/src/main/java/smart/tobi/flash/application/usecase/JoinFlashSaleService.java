@@ -37,16 +37,25 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
       return new Result("LIMIT_EXCEEDED", null, null, null);
     }
 
-    // DSA: Lua atomic decr - chống oversell, không cần distributed lock
+    // US-204: DSA Lua atomic decr - chống oversell tuyệt đối, không cần distributed lock nặng
+    // Flow: Redis Lua (fast path) -> DB optimistic lock (consistency) -> hold
     long remaining = stockPort.tryDecrement(cmd.campaignId(), cmd.quantity());
     if (remaining < 0) {
-      // TODO Phase 2: enqueue to Redis ZSet (priority queue FIFO) -> return QUEUED with ticket
+      // Phase 2 sẽ enqueue vào Redis SortedSet (score=timestamp) FIFO -> return QUEUED
       return new Result("SOLD_OUT", null, null, null);
     }
 
-    // Hold 10 phút - tạo holdId, lưu Redis TTL 600s (impl ở adapter)
+    // Compensate DB stock_remaining (optimistic lock via @Version, retry ở caller nếu ObjectOptimisticLockingFailure)
+    try {
+      campaignPort.decrementStock(cmd.campaignId(), cmd.quantity());
+    } catch (Exception e) {
+      // Compensate Redis nếu DB fail
+      stockPort.increment(cmd.campaignId(), cmd.quantity());
+      throw e;
+    }
+
     String holdId = UUID.randomUUID().toString();
-    // stockHoldPort.save(hold) -> Redis + DB
+    // TODO US-203: persist hold to Redis TTL 600s + DB flash_stock_hold
     return new Result("HOLD_CREATED", holdId, null, null);
   }
 }
