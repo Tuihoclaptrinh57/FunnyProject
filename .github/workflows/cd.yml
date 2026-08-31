@@ -1,0 +1,41 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  deploy-staging:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    needs: [] # independent, ci already passed via branch protection
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & Push Docker to GHCR
+        run: |
+          echo "CD staging: build docker + push ghcr.io/${{ github.repository }}:${{ github.sha }}"
+          # docker build -t ghcr.io/${{ github.repository }}:staging-${{ github.sha }} .
+          # docker push ...
+          echo "TODO: enable when Dockerfile + secrets ready"
+      - name: Deploy to Staging (placeholder)
+        run: |
+          echo "Deploy to staging.smart.tobi via SSH/K8s/Helm"
+          # kubectl set image deployment/smart-tobi app=ghcr.io/...:staging-${{ github.sha }}
+          # helm upgrade smart-tobi ./helm --set image.tag=${{ github.sha }}
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          files: |
+            README.md

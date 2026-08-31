@@ -1,0 +1,52 @@
+# Java / Spring Boot
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/*.jar
+backend/*.class
+backend/.gradle/
+backend/build/
+backend/out/
+
+# Node / Next.js
+node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/dist/
+.next/
+.turbo/
+.pnp.*
+.yarn/*
+
+# Env
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Docker volumes
+postgres_data/
+
+# OS
+*.swp
+*~
+
+# Coverage
+coverage/
+.nyc_output/

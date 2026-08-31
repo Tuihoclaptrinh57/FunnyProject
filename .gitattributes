@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.java text diff=java
+*.ts text diff=typescript
+*.tsx text diff=typescript
+*.md text diff=markdown
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.jar binary

@@ -1,0 +1,21 @@
+# SmartTobi CODEOWNERS
+# Format: path owner
+* @Aldric
+
+# Backend modules - sau này gán tech lead per module
+/backend/src/main/java/smart/tobi/flash/ @Aldric
+/backend/src/main/java/smart/tobi/live/ @Aldric
+/backend/src/main/java/smart/tobi/feed/ @Aldric
+/backend/src/main/java/smart/tobi/logistics/ @Aldric
+/backend/src/main/java/smart/tobi/wallet/ @Aldric
+/backend/src/main/java/smart/tobi/user/ @Aldric
+/backend/src/main/java/smart/tobi/catalog/ @Aldric
+/backend/src/main/java/smart/tobi/common/ @Aldric
+
+# Frontend
+/apps/web/ @Aldric
+
+# Infra & CI
+/.github/ @Aldric
+/docker-compose.yml @Aldric
+/docs/ @Aldric

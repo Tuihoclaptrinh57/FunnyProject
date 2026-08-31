@@ -1,0 +1,20 @@
+{
+  "name": "smart-tobi",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SmartTobi SuperApp - smart.tobi.* hexagonal monolith + Next.js",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "prepare": "husky",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "commitlint": "commitlint --from=HEAD~1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "husky": "^9.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0"
+  }
+}

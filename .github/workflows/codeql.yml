@@ -1,0 +1,27 @@
+name: CodeQL
+
+on:
+  push: { branches: [main, develop] }
+  pull_request: { branches: [main, develop] }
+  schedule: [{ cron: '0 6 * * 1' }]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions: { security-events: write, actions: read, contents: read }
+    strategy:
+      matrix: { language: [java, javascript] }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with: { languages: ${{ matrix.language }} }
+      - if: matrix.language == 'java'
+        uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '25' }
+      - if: matrix.language == 'java'
+        run: |
+          if [ -f "backend/pom.xml" ]; then mvn -B compile -DskipTests -pl backend -am || mvn -B compile -DskipTests; else echo "no java build yet"; fi
+      - if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: github/codeql-action/analyze@v3
