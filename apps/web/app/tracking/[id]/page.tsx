@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 export default function TrackingPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState('order-flash-2');
-  const [eta, setEta] = useState(12 * 60); // 12 phút
+  const [eta, setEta] = useState(12 * 60);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => { params.then((p) => setId(p.id)); }, [params]);
@@ -20,51 +20,53 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
   const ss = String(eta % 60).padStart(2, '0');
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col">
-      {/* ETA to */}
-      <div className="bg-white border-b border-zinc-200 px-4 py-3">
-        <div className="mx-auto max-w-[640px] flex items-center justify-between">
-          <div>
-            <div className="text-xs text-zinc-500">ETA · GEO Search real-time</div>
-            <div className="text-2xl font-bold tabular-nums">{mm}:{ss} <span className="text-sm font-normal text-zinc-500">phút</span></div>
-          </div>
-          <div className="text-right">
-            <div className="text-sm font-medium">Shipper Minh · 3.2km</div>
-            <div className="text-xs text-zinc-500">Đang giao · Cập nhật mỗi 3s qua WebSocket</div>
-          </div>
+    <>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css" />
+      <div className="trk-wrap">
+        <div className="trk-map">
+          <div className="pin pin-user"></div>
+          <div className="pin pin-dest"></div>
+          <div className="pin pin-dest-label">Bạn</div>
+          <div className="pin pin-shipper" style={{ left: `${100 + progress * 0.8}px` }}><i className="ti ti-motorbike" style={{ fontSize: "12px", color: "var(--color-accent)" }} aria-hidden="true"></i></div>
         </div>
-      </div>
 
-      {/* Map full-screen */}
-      <div className="flex-1 relative bg-zinc-100 overflow-hidden" style={{ minHeight: '50vh' }}>
-        {/* grid map placeholder */}
-        <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(to right, #e4e4e7 1px, transparent 1px), linear-gradient(to bottom, #e4e4e7 1px, transparent 1px)', backgroundSize: '40px 40px', opacity: 0.6 }} />
-        {/* route line */}
-        <svg className="absolute inset-0 w-full h-full">
-          <path d="M 80 300 Q 200 200 320 240 T 520 180" stroke="#18181b" strokeWidth="3" fill="none" strokeDasharray="6 6" />
-        </svg>
-        {/* shipper marker moving */}
-        <div className="absolute h-8 w-8 rounded-full bg-zinc-900 border-2 border-white shadow flex items-center justify-center text-white text-xs" style={{ left: `${20 + progress * 0.6}%`, top: `${45 - Math.sin(progress / 10) * 5}%`, transition: 'all 1s linear' }}>●</div>
-        <div className="absolute left-4 bottom-4 rounded bg-white border border-zinc-200 px-3 py-1 text-xs">GEO Search · QuadTree</div>
-      </div>
-
-      {/* Stepper */}
-      <div className="bg-white border-t border-zinc-200 px-4 py-4">
-        <div className="mx-auto max-w-[640px] flex items-center gap-2">
-          {[
-            { label: 'Đã lấy hàng', done: true },
-            { label: 'Đang giao', done: progress > 30, active: true },
-            { label: 'Đã giao', done: progress > 90 },
-          ].map((s, i) => (
-            <div key={s.label} className="flex-1 flex items-center gap-2">
-              <div className={`h-8 w-8 rounded-full grid place-items-center text-xs border ${s.done ? 'bg-zinc-900 text-white border-zinc-900' : s.active ? 'bg-white border-zinc-900 text-zinc-900' : 'bg-zinc-100 border-zinc-200 text-zinc-400'}`}>{s.done ? '✓' : i + 1}</div>
-              <div className={`text-sm ${s.active ? 'font-medium' : 'text-zinc-500'}`}>{s.label}</div>
-              {i < 2 && <div className={`flex-1 h-0.5 mx-2 ${s.done ? 'bg-zinc-900' : 'bg-zinc-200'}`} />}
+        <div className="trk-panel">
+          <div className="trk-stat"><p className="label">Trạng thái</p><p className="value">Shipper đang đến {mm}:{ss}</p></div>
+          <div className="trk-stat"><p className="label">Dự kiến</p><p className="value">{mm} phút {ss} giây nữa</p></div>
+          <div className="trk-shipper">
+            <div className="avatar">NV</div>
+            <div>
+              <p style={{ fontSize: "13px", fontWeight: 500, margin: 0 }}>Nguyễn Văn A</p>
+              <p style={{ fontSize: "12px", color: "var(--color-text-secondary)", margin: 0 }}>Xe máy · 4.9 ★</p>
             </div>
-          ))}
+          </div>
+          <button className="btn" style={{ width: "100%" }}><i className="ti ti-phone" style={{ fontSize: "14px", marginRight: "6px" }} aria-hidden="true"></i>Gọi shipper</button>
+          <Link href="/seller/workspace" className="btn" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>Tiếp → Seller Workspace</Link>
         </div>
-        <Link href="/seller/workspace" className="mt-4 block w-full h-10 rounded border border-zinc-200 bg-white text-sm grid place-items-center hover:bg-zinc-50">Tiếp → Seller Workspace (desktop)</Link>
       </div>
-    </div>
+
+      <style>{`
+        .trk-wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .trk-map { position: relative; height: 260px; background:
+          linear-gradient(var(--color-border) 0.5px, transparent 0.5px) 0 0 / 32px 32px,
+          linear-gradient(90deg, var(--color-border) 0.5px, transparent 0.5px) 0 0 / 32px 32px,
+          var(--color-surface-muted); border-radius: var(--radius-md); overflow: hidden; }
+        .pin { position: absolute; }
+        .pin-user { width: 14px; height: 14px; border-radius: 50%; background: var(--color-accent); box-shadow: 0 0 0 6px var(--color-accent-muted); top: 150px; left: 100px; }
+        .pin-dest { width: 12px; height: 12px; border-radius: 3px; background: var(--color-success); top: 190px; left: 260px; }
+        .pin-dest-label { top: 155px; left: 220px; background: var(--color-surface); border: 0.5px solid var(--color-border); border-radius: var(--radius-sm); padding: 4px 8px; font-size: 12px; }
+        .pin-shipper { width: 22px; height: 22px; border-radius: 50%; background: var(--color-surface); border: 1.5px solid var(--color-accent); display: flex; align-items: center; justify-content: center; top: 110px; transition: left 1s linear; }
+        .trk-panel { display: flex; flex-direction: column; gap: 10px; }
+        .trk-stat { background: var(--color-surface-muted); border-radius: var(--radius-sm); padding: 10px 12px; }
+        .trk-stat p { margin: 0; }
+        .trk-stat .label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+        .trk-stat .value { font-size: 14px; font-weight: 500; }
+        .trk-shipper { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 0.5px solid var(--color-border); }
+        @media (min-width: 1024px) {
+          .trk-wrap { grid-template-columns: minmax(0,1fr) 300px; }
+          .trk-map { height: 420px; }
+        }
+      `}</style>
+    </>
   );
 }
