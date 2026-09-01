@@ -1,86 +1,76 @@
 import Link from 'next/link';
+import { CollabHero } from '../components/landing/CollabHero';
 
-const posts = [
-  {
-    id: 'p1',
-    author: 'Minh · Seller',
-    time: '2m',
-    label: 'Đề xuất cho bạn',
-    labelType: 'vector' as const,
-    content: 'Vừa test xong Flash Sale Engine 10k RPS, Redis Lua + ZSet queue chạy mượt. Deal này gắn với Live lúc 19:00 nhé.',
-    product: { id: 'flash-2', name: 'Áo khoác gió SmartTobi · Chống mưa nhẹ', price: '199k', origPrice: '499k', stock: 42, image: 'https://picsum.photos/seed/p1/400/300', countdown: '00:12:41' },
-  },
-  {
-    id: 'p2',
-    author: 'Linh · Buyer',
-    time: '8m',
-    label: 'Đang hot',
-    labelType: 'hot' as const,
-    content: 'Deal này mình săn được hôm qua, chất vải ok phết. Ai chưa có thì hóng Live tối nay.',
-    product: { id: 'flash-1', name: 'Giày chạy bộ TobiRun · Nhẹ 210g', price: '399k', origPrice: '899k', stock: 8, image: 'https://picsum.photos/seed/p2/400/300', countdown: '00:07:12' },
-  },
-];
-
-export default function FeedPage() {
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-zinc-50">
-      {/* Header mobile-first */}
-      <div className="sticky top-0 z-20 bg-white border-b border-zinc-200">
-        <div className="mx-auto max-w-[640px] px-4 h-14 flex items-center gap-3">
-          <div className="font-semibold tracking-tight">smart.tobi</div>
-          <div className="flex-1" />
-          <Link href="/seller/workspace" className="text-xs border border-zinc-200 rounded px-3 py-1.5 hover:bg-zinc-50">Seller Workspace</Link>
-          <div className="h-7 w-7 rounded-full bg-zinc-900 text-white grid place-items-center text-xs">ME</div>
+    <div className="min-h-screen">
+      {/* Header - left aligned, hairline */}
+      <div className="mx-auto max-w-[1080px] px-6 h-14 flex items-center gap-6">
+        <div className="font-mono text-sm tracking-tight">smart.tobi — CRDT editor</div>
+        <div className="text-xs text-zinc-500 font-mono">RGA · Rope · WebSocket</div>
+        <div className="flex-1" />
+        <Link href="/docs/demo" className="text-xs font-mono border border-[var(--hairline)] px-3 py-1.5 hover:bg-white">Mở editor →</Link>
+      </div>
+      <hr className="hr" />
+
+      {/* Hero - left aligned, 2 cursors typing */}
+      <div className="mx-auto max-w-[1080px] px-6 py-16 sm:py-20">
+        <CollabHero />
+        <div className="mt-6 max-w-[560px] text-sm leading-relaxed text-zinc-600">
+          Tự viết từ đầu cho dân kỹ thuật xem. Không SaaS chung chung, không số to + label nhỏ. Mọi màu đều lấy từ domain: INSERT và DELETE.
         </div>
-        <div className="mx-auto max-w-[640px] px-4 pb-3">
-          <div className="flex gap-2">
-            <input placeholder="Tìm “áo khoác đi mưa nhẹ” (vector search)" className="flex-1 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm focus:outline-none focus:border-zinc-900 focus:bg-white" />
-            <button className="h-9 w-9 rounded-full bg-zinc-900 text-white grid place-items-center">⌕</button>
+        <div className="mt-8 flex gap-3">
+          <Link href="/docs/demo" className="h-9 px-4 inline-flex items-center bg-[var(--ink)] text-[var(--paper)] text-sm font-mono hover:opacity-90">Mở editor</Link>
+          <Link href="#engine" className="h-9 px-4 inline-flex items-center border border-[var(--hairline)] bg-white text-sm font-mono hover:bg-zinc-50">Xem engine</Link>
+        </div>
+      </div>
+
+      <hr className="hr" />
+
+      {/* Engine - as log/diff, not card */}
+      <div id="engine" className="mx-auto max-w-[1080px] px-6 py-10">
+        <div className="text-xs font-mono tracking-widest text-zinc-500">ENGINE — 2 OPERATIONS ONLY</div>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <div className="font-mono text-sm leading-6">
+            <div className="text-zinc-500">{'// log — insert path'}</div>
+            <div><span className="text-[#2F6E4F]">+ INSERT</span> <span className="text-zinc-400">RGA</span> id: 3a7f · left: 2c · right: 8e</div>
+            <div><span className="text-[#2F6E4F]">+ INSERT</span> <span className="text-zinc-400">Rope</span> offset: 12 · len: 5 · &quot;không&quot;</div>
+            <div><span className="text-[#A34632]">- DELETE</span> <span className="text-zinc-400">RGA</span> id: 4b1 · tombstone: true</div>
+            <div className="mt-3 text-xs text-zinc-500">Màu INSERT #2F6E4F / DELETE #A34632 dùng luôn làm ngôn ngữ hệ thống.</div>
           </div>
-          <div className="mt-3 flex gap-2 text-xs">
-            <span className="px-3 py-1 rounded-full bg-zinc-900 text-white">For you (ranked)</span>
-            <span className="px-3 py-1 rounded-full border border-zinc-200 bg-white">Following</span>
-            <span className="px-3 py-1 rounded-full border border-zinc-200 bg-white">Live</span>
+          <div className="font-mono text-sm leading-6 border-l border-[var(--hairline)] pl-6">
+            <div className="text-zinc-500">{'// diff — CRDT state'}</div>
+            <div className="text-zinc-700">@@ doc: 1  ·  peers: 2  ·  pending: 0</div>
+            <div className="text-[#2F6E4F]">{'+ Rope {"chunks": 3, "len": 128}'}</div>
+            <div className="text-[#2F6E4F]">{'+ RGA  {"nodes":  48, "tombstones": 2}'}</div>
+            <div className="text-zinc-500">-- no shadow, no card, left-aligned, hairline only</div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-[640px] px-4 py-4 space-y-4">
-        {posts.map((p) => (
-          <div key={p.id} className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-            <div className="p-4">
-              <div className="flex items-center gap-2">
-                <div className="text-sm font-medium">{p.author}</div>
-                <div className="text-xs text-zinc-400">· {p.time}</div>
-                <span className={`ml-auto text-xs px-2 py-0.5 rounded-full border ${p.labelType === 'vector' ? 'bg-violet-50 border-violet-200 text-violet-700' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>{p.label}</span>
-              </div>
-              <div className="mt-2 text-sm leading-relaxed text-zinc-800">{p.content}</div>
-            </div>
+      <hr className="hr" />
 
-            {/* Deal card lồng - nối sang Live */}
-            <div className="mx-4 mb-4 rounded-lg border border-zinc-200 overflow-hidden">
-              <div className="flex gap-3 p-3">
-                <img src={p.product.image} alt="" className="h-20 w-20 rounded object-cover bg-zinc-100" />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium leading-tight truncate">{p.product.name}</div>
-                  <div className="mt-1 flex items-baseline gap-2">
-                    <span className="text-sm font-bold text-red-600">{p.product.price}</span>
-                    <span className="text-xs line-through text-zinc-400">{p.product.origPrice}</span>
-                    <span className="ml-auto text-xs font-mono bg-zinc-900 text-white px-1.5 py-0.5 rounded">{p.product.countdown}</span>
-                  </div>
-                  <div className="mt-2 h-1.5 rounded bg-zinc-100 overflow-hidden">
-                    <div className="h-full bg-zinc-900" style={{ width: `${(p.product.stock / 50) * 100}%` }} />
-                  </div>
-                  <div className="text-xs text-zinc-500 mt-1">Còn {p.product.stock} · Top-K heap rank</div>
-                </div>
-              </div>
-              <div className="px-3 pb-3">
-                <Link href={`/live/${p.product.id}`} className="block w-full h-9 rounded bg-red-600 hover:bg-red-700 text-white text-sm font-medium grid place-items-center">Xem Live →</Link>
-              </div>
-            </div>
-          </div>
-        ))}
-        <div className="text-center text-xs text-zinc-400 py-4">Đã rank bằng Vector similarity + Top-K heap · Không phải chronological</div>
+      {/* How it works - left aligned, hairline */}
+      <div className="mx-auto max-w-[1080px] px-6 py-10 grid sm:grid-cols-3 gap-8 font-mono text-sm">
+        <div>
+          <div className="text-xs tracking-widest text-zinc-500">01 — OFFLINE FIRST</div>
+          <div className="mt-2 text-zinc-800">Vẫn gõ được khi mất mạng. Số thay đổi chờ gửi hiện ở top bar, tự flush khi có mạng.</div>
+        </div>
+        <div>
+          <div className="text-xs tracking-widest text-zinc-500">02 — LOCAL UNDO</div>
+          <div className="mt-2 text-zinc-800">Undo chỉ hoàn tác hành động của bạn, không undo global.</div>
+        </div>
+        <div>
+          <div className="text-xs tracking-widest text-zinc-500">03 — ANNOTATION</div>
+          <div className="mt-2 text-zinc-800">Bôi đen text → comment gắn vào range, sidebar phải hiện trích đoạn.</div>
+        </div>
+      </div>
+
+      <hr className="hr" />
+
+      <div className="mx-auto max-w-[1080px] px-6 py-10 flex items-center justify-between">
+        <div className="font-mono text-xs text-zinc-500">Nền giấy #F6F5F1 · Mực #1C1B18 · IBM Plex Mono + Sans</div>
+        <Link href="/docs/demo" className="text-sm font-mono underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-900">Vào editor</Link>
       </div>
     </div>
   );
