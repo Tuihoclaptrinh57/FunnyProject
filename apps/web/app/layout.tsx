@@ -1,7 +1,9 @@
+import "./globals.css";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi">
-      <body>{children}</body>
+      <body className="bg-white text-zinc-900 antialiased">{children}</body>
     </html>
   );
 }
