@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { joinFlash } from '@/lib/api/client';
+import { joinFlash } from '../../lib/api/client';
 import { QueuePoller } from './QueuePoller';
 
 export function FlashJoin({ campaignId }: { campaignId: string }) {
@@ -17,13 +17,13 @@ export function FlashJoin({ campaignId }: { campaignId: string }) {
 
   return (
     <div className="space-y-4">
-      <button onClick={onJoin} disabled={loading} className="bg-red-600 text-white px-6 py-3 rounded">
-        {loading ? 'Joining...' : 'Tham gia Flash Sale'}
+      <button onClick={onJoin} disabled={loading} className="h-10 px-6 rounded bg-zinc-900 text-white text-sm hover:bg-black disabled:opacity-50">
+        {loading ? 'Đang tham gia...' : 'Tham gia Flash Sale'}
       </button>
       {result && (
-        <div className="p-4 border">
-          <div>Status: {result.status}</div>
-          {result.holdId && <div className="text-green-600">Hold: {result.holdId} (10 phút) - Countdown...</div>}
+        <div className="rounded border border-zinc-200 bg-white p-4 space-y-2">
+          <div className="text-sm"><span className="text-zinc-500">Trạng thái:</span> <span className="font-medium">{result.status}</span></div>
+          {result.holdId && <div className="text-sm">Hold: <span className="font-mono text-zinc-700">{result.holdId}</span> <span className="text-zinc-500">(10 phút)</span></div>}
           {result.ticketId && <QueuePoller ticketId={result.ticketId} />}
         </div>
       )}
