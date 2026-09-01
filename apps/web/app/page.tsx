@@ -1,128 +1,102 @@
-import Link from 'next/link';
+﻿import Link from "next/link";
 
 const posts = [
   {
-    id: 'p1',
-    author: 'Minh · Seller',
-    time: '2m',
-    label: 'Đề xuất cho bạn',
-    labelType: 'vector' as const,
-    content: 'Vừa test xong Flash Sale Engine 10k RPS, Redis Lua + ZSet queue chạy mượt. Deal này gắn với Live lúc 19:00 nhé.',
-    product: { id: 'flash-2', name: 'Áo khoác gió SmartTobi · Chống mưa nhẹ', price: '199k', origPrice: '499k', stock: 42, countdown: '00:12:41' },
+    id: "p1",
+    author: "Minh",
+    role: "Seller" as const,
+    avatar: "https://i.pravatar.cc/100?img=12",
+    time: "2 phut truoc",
+    badge: "De xuat cho ban",
+    content: "Vua test xong Flash Sale Engine 10k RPS, deal nay gan voi Live luc 19:00 nhe.",
+    product: { id: "flash-2", name: "Ao khoac gio SmartTobi", price: "199.000d", origPrice: "499.000d", stock: 42, countdown: "00:12:41", image: "https://picsum.photos/seed/p1/400/400" },
   },
   {
-    id: 'p2',
-    author: 'Linh · Buyer',
-    time: '8m',
-    label: 'Đang hot',
-    labelType: 'hot' as const,
-    content: 'Deal này mình săn được hôm qua, chất vải ok. Ai chưa có thì hóng Live tối nay.',
-    product: { id: 'flash-1', name: 'Giày chạy bộ TobiRun · Nhẹ 210g', price: '399k', origPrice: '899k', stock: 8, countdown: '00:07:12' },
+    id: "p2",
+    author: "Linh",
+    role: "Buyer" as const,
+    avatar: "https://i.pravatar.cc/100?img=5",
+    time: "8 phut truoc",
+    badge: "Dang hot",
+    content: "Deal nay minh san duoc hom qua, nhe 210g, di mua nhe ok. Ai chua co thi hong Live toi nay nhe!",
+    product: { id: "flash-1", name: "Giay chay bo TobiRun", price: "399.000d", origPrice: "899.000d", stock: 8, countdown: "00:04:22", image: "https://picsum.photos/seed/p2/400/400" },
   },
 ];
 
 export default function FeedPage() {
   return (
-    <div className="min-h-screen">
-      {/* Header - full bleed, hairline */}
-      <div className="border-b" style={{ borderColor: 'var(--hairline)', background: 'var(--paper)' }}>
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-8 h-12 flex items-center gap-4">
-          <div className="font-mono text-sm tracking-tight">smart.tobi — Feed</div>
-          <div className="hidden sm:block font-mono text-xs text-zinc-500">Top-K heap · Vector 0.92 · RGA</div>
-          <div className="flex-1" />
-          <div className="hidden md:flex items-center gap-2 font-mono text-xs">
-            <span className="h-2 w-2 rounded-full bg-[#2F6E4F] animate-pulse" />
-            <span className="text-zinc-600">Live · 12.4k</span>
+    <div className="min-h-screen bg-[#FCFCFC]">
+      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-zinc-100">
+        <div className="mx-auto max-w-[680px] px-4 h-14 flex items-center gap-3">
+          <div className="font-bold tracking-tight text-[15px]">smart.tobi</div>
+          <div className="ml-auto flex items-center gap-2">
+            <Link href="/seller/workspace" className="hidden sm:inline-flex h-8 items-center rounded-full border border-zinc-200 px-3 text-xs hover:bg-zinc-50">Seller</Link>
+            <img src="https://i.pravatar.cc/100?img=8" alt="me" className="h-8 w-8 rounded-full object-cover" />
           </div>
-          <Link href="/seller/workspace" className="font-mono text-xs border px-3 py-1.5 hover:bg-white hidden sm:block" style={{ borderColor: 'var(--hairline)' }}>Seller Workspace</Link>
-          <Link href="/docs/demo" className="font-mono text-xs border px-3 py-1.5 bg-[var(--ink)] text-[var(--paper)] hover:opacity-90" style={{ borderColor: 'var(--ink)' }}>CRDT Editor</Link>
-          <div className="h-7 w-7 rounded-full grid place-items-center text-xs font-mono text-white" style={{ background: 'var(--ink)' }}>ME</div>
+        </div>
+        <div className="mx-auto max-w-[680px] px-4 pb-3">
+          <div className="relative">
+            <input placeholder="Tim san pham, deal, livestream..." className="w-full h-10 rounded-full border border-zinc-200 bg-zinc-50 pl-10 pr-4 text-sm placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-300" />
+            <span className="absolute left-3 top-2.5 text-zinc-400">⌕</span>
+          </div>
+          <div className="mt-3 flex gap-2 overflow-auto">
+            <span className="shrink-0 h-7 px-4 rounded-full bg-zinc-900 text-white text-xs grid place-items-center">For you</span>
+            <span className="shrink-0 h-7 px-3 rounded-full border border-zinc-200 bg-white text-xs">Following</span>
+            <span className="shrink-0 h-7 px-3 rounded-full border border-zinc-200 bg-white text-xs">Live</span>
+          </div>
         </div>
       </div>
-
-      <div className="mx-auto max-w-[1440px] px-6 lg:px-8 grid lg:grid-cols-[1fr_340px] gap-8 py-6">
-        {/* Main feed - left */}
-        <div>
-          <div className="flex gap-2">
-            <input placeholder="Tìm “áo khoác đi mưa nhẹ” — vector search" className="flex-1 border bg-white px-3 py-2 font-mono text-sm focus:outline-none" style={{ borderColor: 'var(--hairline)' }} />
-            <button className="h-9 px-4 bg-[var(--ink)] text-[var(--paper)] font-mono text-xs">Tìm</button>
-          </div>
-          <div className="mt-3 flex gap-2 font-mono text-xs">
-            <span className="px-3 py-1 bg-[var(--ink)] text-[var(--paper)]">For you (ranked)</span>
-            <span className="px-3 py-1 border bg-white" style={{ borderColor: 'var(--hairline)' }}>Following</span>
-            <span className="px-3 py-1 border bg-white" style={{ borderColor: 'var(--hairline)' }}>Live</span>
-            <span className="ml-auto hidden sm:block text-xs text-zinc-500 self-center">Đã rank · không phải chronological</span>
-          </div>
-
-          <div className="mt-6">
-            <div className="font-mono text-xs tracking-widest text-zinc-500 border-b pb-2" style={{ borderColor: 'var(--hairline)' }}>FEED — RANKED</div>
-            <div className="divide-y" style={{ borderColor: 'var(--hairline)' }}>
-              {posts.map((p) => (
-                <div key={p.id} className="py-6 grid sm:grid-cols-[1fr_280px] gap-6">
-                  <div>
-                    <div className="flex items-center gap-2 font-mono text-xs">
-                      <span className="font-medium">{p.author}</span>
-                      <span className="text-zinc-400">· {p.time}</span>
-                      <span className={`ml-auto px-2 py-0.5 border text-xs ${p.labelType === 'vector' ? 'bg-white border-[var(--hairline)] text-[#2F6E4F]' : 'bg-white border-[var(--hairline)] text-[#A34632]'}`}>{p.label}</span>
-                    </div>
-                    <div className="mt-2 text-sm leading-relaxed">{p.content}</div>
-                    <div className="mt-3 font-mono text-xs text-zinc-500">Top-K heap · {p.labelType === 'vector' ? 'Vector similarity 0.92' : 'Engagement 1.2k'}</div>
+      <div className="mx-auto max-w-[680px] px-4 py-4 space-y-4">
+        {posts.map((p) => {
+          const lowStock = p.product.stock < 10;
+          const urgent = p.product.countdown < "00:05:00";
+          return (
+            <div key={p.id} className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
+              <div className="p-4 flex gap-3">
+                <img src={p.avatar} alt={p.author} className="h-9 w-9 rounded-full object-cover" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold">{p.author}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.role === "Seller" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"}`}>{p.role}</span>
+                    <span className="text-xs text-zinc-400">· {p.time}</span>
                   </div>
-                  <div className="border bg-white p-3 h-fit" style={{ borderColor: 'var(--hairline)' }}>
-                    <div className="flex gap-3">
-                      <img src={`https://picsum.photos/seed/${p.id}/200/200`} alt="" className="h-16 w-16 object-cover border" style={{ borderColor: 'var(--hairline)' }} />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-mono text-sm leading-tight">{p.product.name}</div>
-                        <div className="mt-1 flex items-baseline gap-2 font-mono text-xs">
-                          <span className="font-bold" style={{ color: '#A34632' }}>{p.product.price}</span>
-                          <span className="line-through text-zinc-400">{p.product.origPrice}</span>
-                          <span className="ml-auto bg-[var(--ink)] text-[var(--paper)] px-1.5 py-0.5">{p.product.countdown}</span>
-                        </div>
-                        <div className="mt-2 h-1 bg-zinc-100">
-                          <div className="h-full" style={{ width: `${(p.product.stock / 50) * 100}%`, background: p.product.stock < 10 ? '#A34632' : '#2F6E4F' }} />
-                        </div>
-                        <div className="mt-1 font-mono text-xs text-zinc-500">Còn {p.product.stock} · STOCK</div>
-                      </div>
-                    </div>
-                    <Link href={`/live/${p.product.id}`} className="mt-3 block w-full h-8 grid place-items-center bg-[var(--ink)] text-[var(--paper)] font-mono text-xs hover:opacity-90">Xem Live →</Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right rail - evenly distributed, not just centered */}
-        <div className="space-y-4">
-          <div className="border bg-white p-4" style={{ borderColor: 'var(--hairline)' }}>
-            <div className="font-mono text-xs tracking-widest text-zinc-500">LIVE NOW · Fan-out</div>
-            <div className="mt-3 space-y-3">
-              <div className="flex gap-3">
-                <div className="h-10 w-10 rounded bg-zinc-900 grid place-items-center text-white text-xs">▶</div>
-                <div>
-                  <div className="text-sm font-medium">Live 19:00 · Flash Sale</div>
-                  <div className="font-mono text-xs text-zinc-500">12.4k đang xem · WebSocket</div>
+                  <div className="mt-1 text-sm leading-relaxed text-zinc-800">{p.content}</div>
                 </div>
               </div>
-              <Link href="/live/flash-2" className="block w-full h-8 grid place-items-center border font-mono text-xs hover:bg-zinc-50" style={{ borderColor: 'var(--hairline)' }}>Vào Live</Link>
+              <div className="mx-3 mb-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3">
+                <div className="flex gap-3">
+                  <div className="relative shrink-0">
+                    <img src={p.product.image} alt={p.product.name} className="h-24 w-24 rounded-xl object-cover bg-white border border-zinc-100" />
+                    <span className={`absolute -top-2 -right-2 text-xs font-mono px-2 py-1 rounded-full text-white shadow ${urgent ? "bg-red-600 animate-pulse" : "bg-orange-500"}`}>{p.product.countdown}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium leading-tight line-clamp-2">{p.product.name}</div>
+                    <div className="mt-1 flex items-baseline gap-2">
+                      <span className="text-base font-bold text-red-600">{p.product.price}</span>
+                      <span className="text-xs line-through text-zinc-400">{p.product.origPrice}</span>
+                    </div>
+                    <div className="mt-2">
+                      <div className="h-2 rounded-full bg-zinc-200 overflow-hidden">
+                        <div className="h-full bg-red-600" style={{ width: `${Math.min(100, (p.product.stock / 50) * 100)}%` }} />
+                      </div>
+                      <div className="mt-1 flex justify-between text-xs">
+                        <span className={lowStock ? "text-red-600 font-medium" : "text-zinc-500"}>{lowStock ? "Sap het" : `Con ${p.product.stock} san pham`}</span>
+                        <span className="text-zinc-400">{p.product.stock}/50</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <Link href={`/live/${p.product.id}`} className="mt-3 flex h-10 items-center justify-center gap-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700">
+                  <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                  Xem Live
+                </Link>
+              </div>
+              <div className="px-4 pb-3">
+                <span className={`inline-flex text-xs px-2.5 py-1 rounded-full font-medium ${p.badge === "De xuat cho ban" ? "bg-violet-50 text-violet-700" : "bg-amber-50 text-amber-700"}`}>{p.badge}</span>
+              </div>
             </div>
-          </div>
-
-          <div className="border bg-white p-4" style={{ borderColor: 'var(--hairline)' }}>
-            <div className="font-mono text-xs tracking-widest text-zinc-500">ENGINE — 2 OPS</div>
-            <div className="mt-3 font-mono text-xs leading-6">
-              <div><span style={{ color: '#2F6E4F' }}>+ INSERT</span> <span className="text-zinc-400">RGA</span> 3a7f</div>
-              <div><span style={{ color: '#A34632' }}>- DELETE</span> <span className="text-zinc-400">RGA</span> 4b1</div>
-              <div className="mt-2 text-zinc-500">#F6F5F1 · #1C1B18 · IBM Plex</div>
-            </div>
-          </div>
-
-          <div className="border bg-white p-4" style={{ borderColor: 'var(--hairline)' }}>
-            <div className="font-mono text-xs tracking-widest">QUEUE PREVIEW</div>
-            <div className="mt-2 font-mono text-xs text-zinc-500">Heap · Lua TTL 10m</div>
-            <Link href="/queue/flash-2" className="mt-3 block text-xs underline">Xem queue →</Link>
-          </div>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
