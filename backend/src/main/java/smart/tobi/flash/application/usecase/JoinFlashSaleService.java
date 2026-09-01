@@ -8,6 +8,8 @@ import smart.tobi.flash.domain.port.out.CampaignRepositoryPort;
 import smart.tobi.flash.domain.port.out.HoldPort;
 import smart.tobi.flash.domain.port.out.QueuePort;
 import smart.tobi.flash.domain.port.out.StockPort;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import smart.tobi.common.idempotency.IdempotencyStore;
 import smart.tobi.shared.domain.FlashSaleJoinedEvent;
 import smart.tobi.shared.domain.UserId;
 import smart.tobi.shared.eventbus.EventPublisherPort;
@@ -27,18 +29,28 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
   private final QueuePort queuePort;
   private final HoldPort holdPort;
   private final EventPublisherPort eventPublisher;
+  private final IdempotencyStore idempotencyStore;
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
-  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort, HoldPort holdPort, EventPublisherPort eventPublisher) {
+  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort, HoldPort holdPort, EventPublisherPort eventPublisher, IdempotencyStore idempotencyStore) {
     this.campaignPort = campaignPort;
     this.stockPort = stockPort;
     this.queuePort = queuePort;
     this.holdPort = holdPort;
     this.eventPublisher = eventPublisher;
+    this.idempotencyStore = idempotencyStore;
   }
 
   @Override
   @Transactional
   public Result join(Command cmd) {
+    // 1. Idempotency: if key exists, return cached result without re-executing (prevents double charge on retry)
+    if (cmd.idempotencyKey() != null) {
+      var cached = idempotencyStore.get(cmd.idempotencyKey());
+      if (cached.isPresent()) {
+        try { return objectMapper.readValue(cached.get(), Result.class); } catch (Exception ignored) {}
+      }
+    }
     var campaign = campaignPort.findById(cmd.campaignId())
         .orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
 
@@ -54,7 +66,9 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
     // Hexagonal: use case only calls tryReserve, no Redis knowledge - adapter handles Lua
     long position = stockPort.tryReserve(cmd.campaignId(), cmd.userId(), 600);
     if (position < 0) {
-      return new Result("REJECTED", null, null, null); // out_of_stock - no publish
+      var rejected = new Result("REJECTED", null, null, null);
+      if (cmd.idempotencyKey() != null) try { idempotencyStore.put(cmd.idempotencyKey(), objectMapper.writeValueAsString(rejected)); } catch (Exception ignored) {}
+      return rejected; // out_of_stock - no publish
     }
 
     // Success -> publish FlashSaleJoinedEvent for M2 Live to update viewer/queue display
@@ -69,6 +83,8 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
     // Also keep DB stock for non-hot path (optional, not on hot path per deep-dive: Redis is gate, Postgres for order after checkout)
     try { campaignPort.decrementStock(cmd.campaignId(), cmd.quantity()); } catch (Exception ignored) {}
 
-    return new Result("HOLD_CREATED", holdId, String.valueOf(position), (int) position);
+    var result = new Result("HOLD_CREATED", holdId, String.valueOf(position), (int) position);
+    if (cmd.idempotencyKey() != null) try { idempotencyStore.put(cmd.idempotencyKey(), objectMapper.writeValueAsString(result)); } catch (Exception ignored) {}
+    return result;
   }
 }
