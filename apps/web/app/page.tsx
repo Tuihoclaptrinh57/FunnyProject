@@ -35,7 +35,7 @@ export default function FeedPage() {
             Live
           </div>
           <div className="flex-1 flex justify-center">
-            <div className="relative w-full max-w-[560px]">
+            <div className="relative w-full max-w-[600px]">
               <input placeholder="Tim san pham, deal, livestream..." className="w-full h-9 rounded-full border border-zinc-200 bg-zinc-50 pl-10 pr-4 text-sm placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-300" />
               <span className="absolute left-3 top-2 text-zinc-400">⌕</span>
             </div>
@@ -57,12 +57,28 @@ export default function FeedPage() {
               <div className="text-xs text-zinc-500">SuperApp · Flash Live</div>
               <nav className="mt-4 space-y-1 text-sm">
                 <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-zinc-900 text-white">Feed</div>
-                <Link href="/live/flash-2" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50"><span className="h-2 w-2 rounded-full bg-red-600 animate-pulse" /> Live đang phát</Link>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50">Đơn hàng của tôi</div>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50">Ví / Số dư</div>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50">Cài đặt</div>
+                <Link href="/live/flash-2" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors"><span className="h-2 w-2 rounded-full bg-red-600 animate-pulse" /> Live đang phát</Link>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors">Đơn hàng của tôi</div>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors">Ví / Số dư</div>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors">Cài đặt</div>
               </nav>
             </div>
+
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+              <div className="flex items-center gap-3">
+                <img src="https://i.pravatar.cc/100?img=8" alt="Minh" className="h-10 w-10 rounded-full object-cover" />
+                <div>
+                  <div className="text-sm font-semibold">Minh · Seller</div>
+                  <div className="text-xs text-zinc-500">minh@smart.tobi</div>
+                </div>
+              </div>
+              <div className="mt-3 rounded-xl bg-zinc-50 border border-zinc-100 p-3">
+                <div className="text-xs text-zinc-500">Số dư ví</div>
+                <div className="text-sm font-bold">2.450.000đ</div>
+                <div className="text-xs text-emerald-600">+ 120.000đ hôm nay</div>
+              </div>
+            </div>
+
             <div className="rounded-2xl border border-zinc-200 bg-white p-4 text-xs text-zinc-500">© 2026 smart.tobi · Demo System Design</div>
           </div>
         </aside>
@@ -79,7 +95,7 @@ export default function FeedPage() {
             const lowStock = p.product.stock < 10;
             const urgent = p.product.countdown < "00:05:00";
             return (
-              <div key={p.id} className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
+              <div key={p.id} className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm hover:shadow-md hover:border-zinc-300 transition-all">
                 <div className="p-4 flex gap-3">
                   <img src={p.avatar} alt={p.author} className="h-10 w-10 rounded-full object-cover" />
                   <div className="flex-1 min-w-0">
@@ -93,11 +109,11 @@ export default function FeedPage() {
                   </div>
                 </div>
 
-                {/* Product card: vertical on mobile, horizontal on desktop >=1024 */}
-                <div className="mx-3 mb-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3">
+                {/* Product card: vertical on mobile, horizontal 160px on desktop */}
+                <div className="mx-3 mb-3 rounded-xl border border-zinc-100 bg-zinc-50 p-3 hover:bg-white hover:border-zinc-200 transition-colors">
                   <div className="flex flex-col lg:flex-row gap-3">
                     <div className="relative shrink-0 mx-auto lg:mx-0">
-                      <img src={p.product.image} alt={p.product.name} className="h-28 w-28 lg:h-[140px] lg:w-[140px] rounded-xl object-cover bg-white border border-zinc-100" />
+                      <img src={p.product.image} alt={p.product.name} className="h-28 w-28 lg:h-[160px] lg:w-[160px] rounded-xl object-cover bg-white border border-zinc-100" />
                       <span className={`absolute -top-2 -right-2 text-xs font-mono px-2 py-1 rounded-full text-white shadow ${urgent ? "bg-red-600 animate-pulse" : "bg-orange-500"}`}>{p.product.countdown}</span>
                     </div>
                     <div className="flex-1 min-w-0 flex flex-col">
@@ -134,7 +150,13 @@ export default function FeedPage() {
         {/* Right sidebar - hidden <1024px */}
         <aside className="hidden lg:block">
           <div className="sticky top-[72px] space-y-4">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+            <div className="rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-4 text-white sticky top-[72px] shadow-sm">
+              <div className="text-sm font-semibold">Flash Sale 19:00 · Ưu tiên</div>
+              <div className="text-xs opacity-90">Giảm đến 60% · Chỉ 2 tiếng · Doanh thu</div>
+              <div className="mt-3 h-8 rounded-full bg-white text-red-600 text-xs font-semibold grid place-items-center hover:bg-zinc-50 transition-colors">Xem ngay →</div>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4 hover:shadow-sm transition-shadow">
               <div className="text-sm font-semibold">Đang live ngay</div>
               <div className="mt-3 space-y-3">
                 {[
@@ -142,7 +164,7 @@ export default function FeedPage() {
                   { name: "Linh", img: "5", viewers: "8.2k" },
                   { name: "Khoa", img: "15", viewers: "5.1k" },
                 ].map((s) => (
-                  <div key={s.name} className="flex items-center gap-3">
+                  <div key={s.name} className="flex items-center gap-3 p-2 -m-2 rounded-lg hover:bg-zinc-50 transition-colors cursor-pointer">
                     <img src={`https://i.pravatar.cc/100?img=${s.img}`} alt={s.name} className="h-8 w-8 rounded-full object-cover" />
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium leading-none">{s.name}</div>
@@ -154,7 +176,7 @@ export default function FeedPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4 hover:shadow-sm transition-shadow">
               <div className="text-sm font-semibold">Sản phẩm hot hôm nay</div>
               <div className="mt-3 space-y-3">
                 {[
@@ -162,7 +184,7 @@ export default function FeedPage() {
                   { name: "Quần short gió", price: "199k", img: "11" },
                   { name: "Tất thể thao", price: "49k", img: "3" },
                 ].map((p) => (
-                  <div key={p.name} className="flex gap-3">
+                  <div key={p.name} className="flex gap-3 p-2 -m-2 rounded-lg hover:bg-zinc-50 transition-colors cursor-pointer">
                     <img src={`https://picsum.photos/seed/${p.img}/100/100`} alt={p.name} className="h-12 w-12 rounded-lg object-cover border border-zinc-100" />
                     <div>
                       <div className="text-sm font-medium leading-tight">{p.name}</div>
@@ -171,12 +193,6 @@ export default function FeedPage() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div className="rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-4 text-white">
-              <div className="text-sm font-semibold">Flash Sale 19:00</div>
-              <div className="text-xs opacity-90">Giảm đến 60% · Chỉ 2 tiếng</div>
-              <div className="mt-3 h-8 rounded-full bg-white text-red-600 text-xs font-semibold grid place-items-center">Xem ngay →</div>
             </div>
           </div>
         </aside>
