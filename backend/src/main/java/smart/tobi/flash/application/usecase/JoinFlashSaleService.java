@@ -2,8 +2,11 @@ package smart.tobi.flash.application.usecase;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import smart.tobi.flash.domain.model.StockHold;
 import smart.tobi.flash.domain.port.in.JoinFlashSaleUseCase;
 import smart.tobi.flash.domain.port.out.CampaignRepositoryPort;
+import smart.tobi.flash.domain.port.out.HoldPort;
+import smart.tobi.flash.domain.port.out.QueuePort;
 import smart.tobi.flash.domain.port.out.StockPort;
 
 import java.time.Instant;
@@ -18,10 +21,14 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
 
   private final CampaignRepositoryPort campaignPort;
   private final StockPort stockPort;
+  private final QueuePort queuePort;
+  private final HoldPort holdPort;
 
-  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort) {
+  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort, HoldPort holdPort) {
     this.campaignPort = campaignPort;
     this.stockPort = stockPort;
+    this.queuePort = queuePort;
+    this.holdPort = holdPort;
   }
 
   @Override
@@ -37,16 +44,27 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
       return new Result("LIMIT_EXCEEDED", null, null, null);
     }
 
-    // DSA: Lua atomic decr - chống oversell, không cần distributed lock
+    // US-202 + US-204: Lua atomic decr; if SOLD_OUT -> enqueue FIFO queue (ZSet score=timestamp)
     long remaining = stockPort.tryDecrement(cmd.campaignId(), cmd.quantity());
     if (remaining < 0) {
-      // TODO Phase 2: enqueue to Redis ZSet (priority queue FIFO) -> return QUEUED with ticket
-      return new Result("SOLD_OUT", null, null, null);
+      var ticket = queuePort.enqueue(cmd.campaignId(), cmd.userId(), cmd.quantity());
+      return new Result("QUEUED", null, ticket.id(), (int) ticket.position());
     }
 
-    // Hold 10 phút - tạo holdId, lưu Redis TTL 600s (impl ở adapter)
+    // Compensate DB stock_remaining (optimistic lock via @Version, retry ở caller nếu ObjectOptimisticLockingFailure)
+    try {
+      campaignPort.decrementStock(cmd.campaignId(), cmd.quantity());
+    } catch (Exception e) {
+      // Compensate Redis nếu DB fail
+      stockPort.increment(cmd.campaignId(), cmd.quantity());
+      throw e;
+    }
+
+    // US-203: create hold 10 phút TTL 600s
     String holdId = UUID.randomUUID().toString();
-    // stockHoldPort.save(hold) -> Redis + DB
+    var hold = new StockHold(holdId, cmd.campaignId(), cmd.userId(), cmd.quantity(),
+        Instant.now().plusSeconds(600), StockHold.HoldStatus.ACTIVE, Instant.now());
+    holdPort.create(hold);
     return new Result("HOLD_CREATED", holdId, null, null);
   }
 }
