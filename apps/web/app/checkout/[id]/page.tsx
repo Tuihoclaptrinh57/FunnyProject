@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 export default function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
   const [id, setId] = useState('flash-2');
-  const [secs, setSecs] = useState(600); // 10 phút
+  const [secs, setSecs] = useState(600);
   const [step, setStep] = useState<0 | 1 | 2>(0);
 
   useEffect(() => { params.then((p) => setId(p.id)); }, [params]);
@@ -22,47 +22,79 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
   const warn = secs < 120;
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <div className="mx-auto max-w-[480px] px-4 py-6">
-        {/* Countdown XUYÊN SUỐT - to, cảnh báo */}
-        <div className={`rounded-xl border p-4 text-center ${warn ? 'border-red-200 bg-red-50' : 'border-zinc-200 bg-white'}`}>
-          <div className="text-xs tracking-widest text-zinc-500">GIỮ CHỖ CÒN LẠI</div>
-          <div className={`mt-1 text-4xl font-bold tabular-nums tracking-tight transition-colors ${warn ? 'text-red-600 animate-pulse' : 'text-zinc-900'}`}>{mm}:{ss}</div>
-          <div className="text-xs text-zinc-500">Lua script giữ stock có TTL 10 phút · đỏ khi &lt; 2 phút</div>
-        </div>
-
-        {/* 3 bước */}
-        <div className="mt-4 flex items-center gap-2 text-xs">
-          {['Đang giữ chỗ', 'Đang trừ tiền', 'Đã xác nhận'].map((label, i) => (
-            <div key={label} className="flex-1 flex items-center gap-2">
-              <div className={`h-7 w-7 rounded-full grid place-items-center border text-xs ${i === step ? 'bg-zinc-900 text-white border-zinc-900' : i < step ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-white border-zinc-200 text-zinc-400'}`}>{i < step ? '✓' : i + 1}</div>
-              <div className={`hidden sm:block ${i === step ? 'text-zinc-900 font-medium' : 'text-zinc-500'}`}>{label}</div>
-              {i < 2 && <div className={`flex-1 h-0.5 ${i < step ? 'bg-emerald-500' : 'bg-zinc-200'}`} />}
+    <>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css" />
+      <div className="ck-wrap">
+        <div className="card ck-card">
+          <p style={{ fontSize: "15px", fontWeight: 500, margin: "0 0 12px" }}>Xác nhận đơn hàng</p>
+          <div className={`rounded border p-3 text-center mb-3 ${warn ? 'border-red-200 bg-red-50' : 'border-zinc-200 bg-white'}`}>
+            <div className="text-xs tracking-widest text-zinc-500">GIỮ CHỖ CÒN LẠI</div>
+            <div className={`mt-1 text-2xl font-bold tabular-nums ${warn ? 'text-red-600 animate-pulse' : 'text-zinc-900'}`}>{mm}:{ss}</div>
+          </div>
+          <div className="flex items-center gap-2 text-xs mb-3">
+            {['Đang giữ chỗ', 'Đang trừ tiền', 'Đã xác nhận'].map((label, i) => (
+              <div key={label} className="flex-1 flex items-center gap-2">
+                <div className={`h-6 w-6 rounded-full grid place-items-center border text-xs ${i === step ? 'bg-zinc-900 text-white border-zinc-900' : i < step ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-white border-zinc-200 text-zinc-400'}`}>{i < step ? '✓' : i + 1}</div>
+                <div className={`hidden sm:block text-xs ${i === step ? 'text-zinc-900 font-medium' : 'text-zinc-500'}`}>{label}</div>
+                {i < 2 && <div className={`flex-1 h-0.5 ${i < step ? 'bg-emerald-500' : 'bg-zinc-200'}`} />}
+              </div>
+            ))}
+          </div>
+          <div className="ck-item">
+            <div className="ck-item-thumb"><i className="ti ti-headphones" style={{ fontSize: "22px", color: "var(--color-text-muted)" }} aria-hidden="true"></i></div>
+            <div className="ck-item-info">
+              <p style={{ fontSize: "14px" }}>Tai nghe không dây ProSound X2 · #{id}</p>
+              <p style={{ fontSize: "12px", color: "var(--color-text-secondary)" }}>Số lượng: 1</p>
             </div>
-          ))}
+            <p style={{ fontSize: "14px", fontWeight: 500 }}>299.000đ</p>
+          </div>
+          <table className="ck-table">
+            <tbody>
+              <tr><td style={{ color: "var(--color-text-secondary)" }}>Tạm tính</td><td style={{ textAlign: "right" }}>299.000đ</td></tr>
+              <tr><td style={{ color: "var(--color-text-secondary)" }}>Phí vận chuyển</td><td style={{ textAlign: "right" }}>0đ</td></tr>
+              <tr className="total"><td>Tổng cộng</td><td style={{ textAlign: "right" }}>299.000đ</td></tr>
+            </tbody>
+          </table>
         </div>
 
-        {/* 3 số dư rõ ràng */}
-        <div className="mt-4 rounded-xl border border-zinc-200 bg-white p-4 space-y-3">
-          <div className="flex justify-between text-sm"><span className="text-zinc-500">Số dư hiện tại</span><span className="font-medium">2.450.000đ</span></div>
-          <div className="flex justify-between text-sm"><span className="text-zinc-500">Số tiền trừ</span><span className="font-bold text-red-600">-199.000đ</span></div>
-          <div className="h-px bg-zinc-100" />
-          <div className="flex justify-between text-sm"><span className="font-medium">Số dư sau giao dịch</span><span className="font-bold">2.251.000đ</span></div>
-          <div className="text-xs text-zinc-400">Không gộp chung 1 dòng · CÓ THỂ THẤT BẠI giữa chừng nếu hết hold time</div>
-        </div>
-
-        <div className="mt-4 rounded border border-zinc-200 bg-white p-4 flex gap-3">
-          <img src={`https://picsum.photos/seed/${id}/200/200`} alt="" className="h-16 w-16 rounded object-cover" />
-          <div className="flex-1">
-            <div className="text-sm font-medium">Áo khoác gió SmartTobi</div>
-            <div className="text-xs text-zinc-500">Flash Sale · Còn 8 · Stock progress real-time</div>
-            <div className="mt-1 h-1.5 rounded bg-zinc-100 overflow-hidden"><div className="h-full bg-red-600 w-16 transition-all" /></div>
+        <div className="card ck-card" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <p style={{ fontSize: "15px", fontWeight: 500, margin: 0 }}>Thanh toán</p>
+          <div className="ck-pay-row">
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <i className="ti ti-wallet" style={{ fontSize: "18px", color: "var(--color-accent)" }} aria-hidden="true"></i>
+              <span style={{ fontSize: "13px" }}>Ví của bạn</span>
+            </div>
+            <span style={{ fontSize: "13px", fontWeight: 500 }}>1.250.000đ</span>
+          </div>
+          <div className="rounded border bg-white p-3 space-y-1 text-sm" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="flex justify-between"><span className="text-zinc-500">Số dư hiện tại</span><span>2.450.000đ</span></div>
+            <div className="flex justify-between"><span className="text-zinc-500">Trừ</span><span className="text-red-600">-299.000đ</span></div>
+            <div className="flex justify-between font-medium border-t pt-1" style={{ borderColor: 'var(--color-border)' }}><span>Số dư sau</span><span>2.151.000đ</span></div>
+          </div>
+          <div className="ck-pay-btn-wrap">
+            <Link href={`/tracking/order-${id}`} className="btn btn-primary" style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>Thanh toán 299.000đ</Link>
+            <p style={{ fontSize: "11px", color: "var(--color-text-muted)", margin: "8px 0 0", textAlign: "center" }}>Giữ chỗ hết hạn sau {mm}:{ss}</p>
           </div>
         </div>
-
-        <Link href={`/tracking/order-${id}`} className="mt-6 w-full h-11 rounded bg-zinc-900 text-white font-medium grid place-items-center hover:bg-black">Xác nhận thanh toán →</Link>
-        <div className="mt-2 text-center text-xs text-zinc-400">Sau khi xác nhận tự động chuyển sang Shipper Tracking</div>
       </div>
-    </div>
+
+      <style>{`
+        .ck-wrap { max-width: 1000px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .ck-card { padding: 16px; }
+        .ck-item { display: flex; gap: 12px; align-items: center; padding-bottom: 12px; border-bottom: 0.5px solid var(--color-border); margin-bottom: 12px; }
+        .ck-item-thumb { width: 48px; height: 48px; background: var(--color-surface-muted); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .ck-item-info { flex: 1; }
+        .ck-item-info p { margin: 0; }
+        .ck-table { width: 100%; font-size: 13px; }
+        .ck-table td { padding: 4px 0; }
+        .ck-table .total td { font-weight: 500; padding-top: 8px; border-top: 0.5px solid var(--color-border); }
+        .ck-pay-row { display: flex; align-items: center; justify-content: space-between; background: var(--color-surface-muted); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px; }
+        .ck-pay-btn-wrap { position: sticky; bottom: 0; background: var(--color-bg); padding-top: 8px; }
+        @media (min-width: 1024px) {
+          .ck-wrap { grid-template-columns: minmax(0,1fr) 300px; }
+          .ck-pay-btn-wrap { position: static; }
+        }
+      `}</style>
+    </>
   );
 }

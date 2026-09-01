@@ -1,9 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Minimal, Linear/Notion-like */
+:root {
+  --color-bg: #F7F6F3;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #F0EFEA;
+  --color-border: #E4E2DC;
+  --color-border-strong: #D3D1C7;
+  --color-text: #1F1E1C;
+  --color-text-secondary: #6B6A64;
+  --color-text-muted: #9B9A93;
+  --color-danger: #D85A30;
+  --color-danger-bg: #FAECE7;
+  --color-danger-text: #4A1B0C;
+  --color-success: #3B6D11;
+  --color-success-bg: #EAF3DE;
+  --color-warning: #854F0B;
+  --color-warning-bg: #FAEEDA;
+  --color-accent: #185FA5;
+  --color-accent-bg: #E6F1FB;
+  --color-accent-muted: rgba(24, 95, 165, 0.1);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --gap-xs: 4px;
+  --gap-sm: 8px;
+  --gap-md: 12px;
+  --gap-lg: 16px;
+  --gap-xl: 24px;
+  --font-sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* legacy aliases for existing code */
+  --paper: var(--color-bg);
+  --ink: var(--color-text);
+  --hairline: var(--color-border);
+  --insert: var(--color-success);
+  --delete: var(--color-danger);
+}
+
+* { box-sizing: border-box; }
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-body { background: #fff; color: #18181b; }
-/* subtle line */
-.prose-editor { line-height: 1.75; }
+body { margin: 0; font-family: var(--font-sans); color: var(--color-text); background: var(--color-bg); line-height: 1.5; }
+.font-mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.hr { border: 0; border-top: 1px solid var(--color-border); }
+.card { background: var(--color-surface); border: 0.5px solid var(--color-border); border-radius: var(--radius-md); }
+.badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: var(--radius-sm); }
+.badge-danger { background: var(--color-danger); color: #fff; }
+.badge-warning { background: var(--color-warning-bg); color: var(--color-warning); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; background: var(--color-accent-bg); color: var(--color-accent); flex-shrink: 0; }
+.btn { height: 44px; border-radius: var(--radius-sm); border: 0.5px solid var(--color-border-strong); background: var(--color-surface); font-size: 15px; font-weight: 500; color: var(--color-text); }
+.btn:hover { background: var(--color-surface-muted); }
+.btn-primary { background: var(--color-danger); color: #fff; border: none; }
