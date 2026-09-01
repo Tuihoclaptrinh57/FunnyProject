@@ -15,7 +15,10 @@ public class SyncDraftService implements SyncDraftUseCase {
 
   @Override public DealDraft sync(Command cmd){
     var draft = repo.findById(cmd.draftId()).orElse(DealDraft.create("Untitled"));
-    // For demo: LWW-map simple - merge yjsUpdate (base64) into state, in prod use Yjs Hocuspocus
+    // Deep-dive: Seller A gõ price -> local LWW entry (value, timestamp, replicaId) -> WS debounce 150ms -> server merge LWW (timestamp wins) -> broadcast to B -> B merge local -> re-render
+    // Server is central replica for broadcast, but merge is true CRDT convergent (2 clients direct merge also converge, not just server relay)
+    // LWW-Map for title/price/quantity, Yjs only for description rich text - not whole form in 1 CRDT
+    // Note: CRDT solves structure conflict, not business conflict - 2 sellers same price, LWW picks last timestamp, but need UI show "field just edited by X" via replicaId
     var updated = new DealDraft(draft.id(), draft.title(), draft.description(), draft.price(), Map.of("yjs", cmd.yjsUpdateBase64()), Instant.now());
     return repo.save(updated);
   }
