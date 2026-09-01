@@ -1,68 +1,68 @@
-﻿import Link from "next/link";
+﻿import Link from 'next/link';
+import { CollabHero } from '../components/landing/CollabHero';
 
-export default function FeedPage() {
+export default function LandingPage() {
   return (
-    <>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css" />
-      <div className="feed-wrap">
-        <nav className="feed-nav">
-          <div className="feed-nav-item active"><i className="ti ti-home" aria-hidden="true"></i> Feed</div>
-          <Link href="/live/flash-2" className="feed-nav-item"><i className="ti ti-device-tv" aria-hidden="true"></i> Live</Link>
-          <div className="feed-nav-item"><i className="ti ti-bolt" aria-hidden="true"></i> Flash sale</div>
-          <Link href="/seller/workspace" className="feed-nav-item"><i className="ti ti-wallet" aria-hidden="true"></i> Ví</Link>
-          <Link href="/tracking/order-flash-2" className="feed-nav-item"><i className="ti ti-map-pin" aria-hidden="true"></i> Đơn hàng</Link>
-        </nav>
-
-        <div className="feed-grid">
-          <div className="card">
-            <div className="feed-card-media">
-              <i className="ti ti-headphones" style={{ fontSize: "36px", color: "var(--color-text-muted)" }} aria-hidden="true"></i>
-              <span className="badge badge-danger">-66% flash sale</span>
-            </div>
-            <div className="feed-card-body">
-              <p>Đang livestream · gắn deal ProSound X2</p>
-              <Link href="/live/flash-2" className="btn" style={{ width: "100%", height: "32px", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>Xem live</Link>
-            </div>
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-[1080px] px-6 h-14 flex items-center gap-6">
+        <div className="font-mono text-sm tracking-tight">smart.tobi — CRDT editor</div>
+        <div className="text-xs text-zinc-500 font-mono">RGA · Rope · WebSocket</div>
+        <div className="flex-1" />
+        <Link href="/feed" className="text-xs font-mono border px-3 py-1.5 hover:bg-white" style={{ borderColor: 'var(--color-border)' }}>Feed SuperApp →</Link>
+        <Link href="/docs/demo" className="text-xs font-mono border px-3 py-1.5 hover:bg-white" style={{ borderColor: 'var(--color-border)' }}>Mở editor →</Link>
+      </div>
+      <hr className="hr" />
+      <div className="mx-auto max-w-[1080px] px-6 py-16 sm:py-20">
+        <CollabHero />
+        <div className="mt-6 max-w-[560px] text-sm leading-relaxed text-zinc-600">
+          Tự viết từ đầu cho dân kỹ thuật xem. Không SaaS chung chung, không số to + label nhỏ. Mọi màu đều lấy từ domain: INSERT và DELETE.
+        </div>
+        <div className="mt-8 flex gap-3">
+          <Link href="/docs/demo" className="h-9 px-4 inline-flex items-center bg-[var(--ink)] text-[var(--paper)] text-sm font-mono hover:opacity-90">Mở editor</Link>
+          <Link href="/feed" className="h-9 px-4 inline-flex items-center border bg-white text-sm font-mono hover:bg-zinc-50" style={{ borderColor: 'var(--color-border)' }}>Xem Feed</Link>
+          <Link href="#engine" className="h-9 px-4 inline-flex items-center border bg-white text-sm font-mono hover:bg-zinc-50" style={{ borderColor: 'var(--color-border)' }}>Xem engine</Link>
+        </div>
+      </div>
+      <hr className="hr" />
+      <div id="engine" className="mx-auto max-w-[1080px] px-6 py-10">
+        <div className="text-xs font-mono tracking-widest text-zinc-500">ENGINE — 2 OPERATIONS ONLY</div>
+        <div className="mt-4 grid gap-6 sm:grid-cols-2">
+          <div className="font-mono text-sm leading-6">
+            <div className="text-zinc-500">{'// log — insert path'}</div>
+            <div><span className="text-[#2F6E4F]">+ INSERT</span> <span className="text-zinc-400">RGA</span> id: 3a7f · left: 2c · right: 8e</div>
+            <div><span className="text-[#2F6E4F]">+ INSERT</span> <span className="text-zinc-400">Rope</span> offset: 12 · len: 5 · &quot;không&quot;</div>
+            <div><span className="text-[#A34632]">- DELETE</span> <span className="text-zinc-400">RGA</span> id: 4b1 · tombstone: true</div>
+            <div className="mt-3 text-xs text-zinc-500">Màu INSERT #2F6E4F / DELETE #A34632 dùng luôn làm ngôn ngữ hệ thống.</div>
           </div>
-
-          <div className="card">
-            <div className="feed-card-media">
-              <i className="ti ti-shoe" style={{ fontSize: "36px", color: "var(--color-text-muted)" }} aria-hidden="true"></i>
-            </div>
-            <div className="feed-card-body">
-              <p>Gợi ý cho bạn · giày chạy bộ AirRun</p>
-              <Link href="/live/flash-1" className="btn" style={{ width: "100%", height: "32px", fontSize: "13px", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>Xem sản phẩm</Link>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="feed-card-media">
-              <i className="ti ti-watch" style={{ fontSize: "36px", color: "var(--color-text-muted)" }} aria-hidden="true"></i>
-              <span className="badge badge-warning">Sắp mở bán</span>
-            </div>
-            <div className="feed-card-body">
-              <p>Đồng hồ thông minh FitPro · 18:00</p>
-              <button className="btn" style={{ width: "100%", height: "32px", fontSize: "13px" }}>Đặt nhắc</button>
-            </div>
+          <div className="font-mono text-sm leading-6 border-l pl-6" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="text-zinc-500">{'// diff — CRDT state'}</div>
+            <div className="text-zinc-700">@@ doc: 1  ·  peers: 2  ·  pending: 0</div>
+            <div className="text-[#2F6E4F]">{'+ Rope {"chunks": 3, "len": 128}'}</div>
+            <div className="text-[#2F6E4F]">{'+ RGA  {"nodes":  48, "tombstones": 2}'}</div>
+            <div className="text-zinc-500">-- no shadow, no card, left-aligned, hairline only</div>
           </div>
         </div>
       </div>
-
-      <style>{`
-        .feed-wrap { max-width: 1200px; margin: 0 auto; padding: 24px 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
-        .feed-nav { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 8px; }
-        .feed-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--radius-sm); font-size: 14px; white-space: nowrap; color: var(--color-text-secondary); text-decoration: none; }
-        .feed-nav-item.active { background: var(--color-surface-muted); color: var(--color-text); font-weight: 500; }
-        .feed-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-        .feed-card-media { position: relative; height: 140px; background: var(--color-surface-muted); display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md) var(--radius-md) 0 0; }
-        .feed-card-media .badge { position: absolute; top: 8px; left: 8px; }
-        .feed-card-body { padding: 10px 12px; }
-        .feed-card-body p { font-size: 13px; margin: 0 0 8px; color: var(--color-text-secondary); }
-        @media (min-width: 768px) {
-          .feed-wrap { grid-template-columns: 220px minmax(0,1fr); }
-          .feed-nav { flex-direction: column; overflow-x: visible; }
-        }
-      `}</style>
-    </>
+      <hr className="hr" />
+      <div className="mx-auto max-w-[1080px] px-6 py-10 grid sm:grid-cols-3 gap-8 font-mono text-sm">
+        <div>
+          <div className="text-xs tracking-widest text-zinc-500">01 — OFFLINE FIRST</div>
+          <div className="mt-2 text-zinc-800">Vẫn gõ được khi mất mạng. Số thay đổi chờ gửi hiện ở top bar, tự flush khi có mạng.</div>
+        </div>
+        <div>
+          <div className="text-xs tracking-widest text-zinc-500">02 — LOCAL UNDO</div>
+          <div className="mt-2 text-zinc-800">Undo chỉ hoàn tác hành động của bạn, không undo global.</div>
+        </div>
+        <div>
+          <div className="text-xs tracking-widest text-zinc-500">03 — ANNOTATION</div>
+          <div className="mt-2 text-zinc-800">Bôi đen text → comment gắn vào range, sidebar phải hiện trích đoạn.</div>
+        </div>
+      </div>
+      <hr className="hr" />
+      <div className="mx-auto max-w-[1080px] px-6 py-10 flex items-center justify-between">
+        <div className="font-mono text-xs text-zinc-500">Nền giấy #F6F5F1 · Mực #1C1B18 · IBM Plex Mono + Sans</div>
+        <Link href="/docs/demo" className="text-sm font-mono underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-900">Vào editor</Link>
+      </div>
+    </div>
   );
 }
