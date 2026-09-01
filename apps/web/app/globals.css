@@ -7,9 +7,12 @@
 :root {
   --paper: #F6F5F1;
   --ink: #1C1B18;
+  --hairline: #E8E6E1;
+  --urgency: #D85A30;
+  --trust: #185FA5;
   --insert: #2F6E4F;
   --delete: #A34632;
-  --hairline: #E8E6E1;
+  --muted: #6B6A64;
 }
 
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
