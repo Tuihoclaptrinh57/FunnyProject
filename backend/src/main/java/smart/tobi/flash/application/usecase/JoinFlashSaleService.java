@@ -8,6 +8,9 @@ import smart.tobi.flash.domain.port.out.CampaignRepositoryPort;
 import smart.tobi.flash.domain.port.out.HoldPort;
 import smart.tobi.flash.domain.port.out.QueuePort;
 import smart.tobi.flash.domain.port.out.StockPort;
+import smart.tobi.shared.domain.FlashSaleJoinedEvent;
+import smart.tobi.shared.domain.UserId;
+import smart.tobi.shared.eventbus.EventPublisherPort;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -23,12 +26,14 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
   private final StockPort stockPort;
   private final QueuePort queuePort;
   private final HoldPort holdPort;
+  private final EventPublisherPort eventPublisher;
 
-  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort, HoldPort holdPort) {
+  public JoinFlashSaleService(CampaignRepositoryPort campaignPort, StockPort stockPort, QueuePort queuePort, HoldPort holdPort, EventPublisherPort eventPublisher) {
     this.campaignPort = campaignPort;
     this.stockPort = stockPort;
     this.queuePort = queuePort;
     this.holdPort = holdPort;
+    this.eventPublisher = eventPublisher;
   }
 
   @Override
@@ -44,27 +49,26 @@ public class JoinFlashSaleService implements JoinFlashSaleUseCase {
       return new Result("LIMIT_EXCEEDED", null, null, null);
     }
 
-    // US-202 + US-204: Lua atomic decr; if SOLD_OUT -> enqueue FIFO queue (ZSet score=timestamp)
-    long remaining = stockPort.tryDecrement(cmd.campaignId(), cmd.quantity());
-    if (remaining < 0) {
-      var ticket = queuePort.enqueue(cmd.campaignId(), cmd.userId(), cmd.quantity());
-      return new Result("QUEUED", null, ticket.id(), (int) ticket.position());
+    // M1 Deep-dive: JoinQueueUseCase -> StockRepositoryPort.tryReserve (5-step Lua atomic)
+    // Steps in Lua (single Redis call, no interleaving): check stock, decr, set hold:{dealId}:{userId} EX 600, ZADD queue:{dealId} timestamp, return rank
+    // Hexagonal: use case only calls tryReserve, no Redis knowledge - adapter handles Lua
+    long position = stockPort.tryReserve(cmd.campaignId(), cmd.userId(), 600);
+    if (position < 0) {
+      return new Result("REJECTED", null, null, null); // out_of_stock - no publish
     }
 
-    // Compensate DB stock_remaining (optimistic lock via @Version, retry ở caller nếu ObjectOptimisticLockingFailure)
-    try {
-      campaignPort.decrementStock(cmd.campaignId(), cmd.quantity());
-    } catch (Exception e) {
-      // Compensate Redis nếu DB fail
-      stockPort.increment(cmd.campaignId(), cmd.quantity());
-      throw e;
-    }
+    // Success -> publish FlashSaleJoinedEvent for M2 Live to update viewer/queue display
+    var heldUntil = Instant.now().plusSeconds(600);
+    eventPublisher.publish(new FlashSaleJoinedEvent(UserId.of(cmd.userId()), cmd.campaignId(), heldUntil));
 
-    // US-203: create hold 10 phút TTL 600s
-    String holdId = UUID.randomUUID().toString();
-    var hold = new StockHold(holdId, cmd.campaignId(), cmd.userId(), cmd.quantity(),
-        Instant.now().plusSeconds(600), StockHold.HoldStatus.ACTIVE, Instant.now());
-    holdPort.create(hold);
-    return new Result("HOLD_CREATED", holdId, null, null);
+    // Persist hold for tracking (Redis hold already set via Lua, this is DB record)
+    String holdId = "hold:" + cmd.campaignId() + ":" + cmd.userId();
+    var hold = new StockHold(holdId, cmd.campaignId(), cmd.userId(), cmd.quantity(), heldUntil, StockHold.HoldStatus.ACTIVE, Instant.now());
+    try { holdPort.create(hold); } catch (Exception ignored) {}
+
+    // Also keep DB stock for non-hot path (optional, not on hot path per deep-dive: Redis is gate, Postgres for order after checkout)
+    try { campaignPort.decrementStock(cmd.campaignId(), cmd.quantity()); } catch (Exception ignored) {}
+
+    return new Result("HOLD_CREATED", holdId, String.valueOf(position), (int) position);
   }
 }
